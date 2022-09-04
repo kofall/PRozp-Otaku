@@ -28,5 +28,7 @@ struct part* front(struct Queue *queue);
 struct part* back(struct Queue *queue);
 // zwraca wybrany element w kolejce
 struct part* find(struct Queue *queue, int i);
+// usuwa pozycje o danym indeksie
+void part* delete_idx(struct Queue *queue, int idx);
 
 #endif

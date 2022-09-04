@@ -68,3 +68,21 @@ struct part* find(struct Queue *queue, int i) {
     }
     return p;
 }
+//usuwa element o danym indeksie z kolejki
+void delete_idx(struct Queue* queue, int idx){
+    if(isEmpty(queue) || queue->size<idx){
+        return;
+    }
+    struct part* current=queue->head;
+    for(int i=1; i<=idx; i++){
+        current=current->next;
+    }
+    if(idx==0){
+        queue->head=current->next;
+    }
+    else{
+        current->prev->next=current->next;
+    }
+    queue->size--;
+    free(current);
+}
