@@ -26,5 +26,7 @@ void pop_front(struct Queue *queue);
 struct part* front(struct Queue *queue);
 // zwraca ostatni element w kolejce
 struct part* back(struct Queue *queue);
+// zwraca wybrany element w kolejce
+struct part* find(struct Queue *queue, int i);
 
 #endif

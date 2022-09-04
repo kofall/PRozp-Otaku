@@ -57,3 +57,14 @@ struct part* back(struct Queue *queue) {
     }
     return p;
 }
+
+// zwraca wybrany element w kolejce zaczynając od 0
+struct part* find(struct Queue *queue, int i) {
+    struct part *p = queue->head;
+    if(isEmpty(queue))
+        return NULL;
+    while(p->next != NULL && --i >= 0) {
+        p = p->next;
+    }
+    return p;
+}
