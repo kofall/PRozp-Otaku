@@ -26,5 +26,9 @@ void pop_front(struct Queue *queue);
 struct part* front(struct Queue *queue);
 // zwraca ostatni element w kolejce
 struct part* back(struct Queue *queue);
+// zwraca wartosć spod danego indeksu z kolejki
+struct part* get_value(struct Queue *queue, int idx);
+// usuwa pozycje o danym indeksie
+void part* delete_idx(struct Queue *queue, int idx);
 
 #endif
