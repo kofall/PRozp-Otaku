@@ -34,6 +34,25 @@ void *startKomWatek(void *ptr)
             case RELEASE;
                 break;
             */
+           case ACK:
+                otrzymane_ACK++;
+                if (wyzerowanie_kolejki==TRUE && !isEmpty(queue))continue;
+                if (otrzymane_ACK<N)continue;
+                int moj_idx=get_idx(queue, rank);
+                if (moj_idx>S)continue;
+                int suma_cuchow=0;
+                for(int idx=0;idx<=moj_idx;idx++)
+                {
+                    struct part* element_z_kolejki=find(queue, idx);
+                    suma_cuchow+=element_z_kolejki->cuchy;
+                    if (suma_cuchow>=M) continue;
+
+                }
+                //wszystkie warunki spelnione na wejsci do pokoju
+                wyzerowanie_kolejki=FALSE;
+                otrzymane_ACK=0;
+                pthread_mutex_unlock(&pokojMut);
+                break;
 	        default:
 	            break;
         }
