@@ -36,6 +36,7 @@ pthread_t threadKom, threadMon;
 
 pthread_mutex_t stateMut = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t zegarMut = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t pokojMut = PTHREAD_MUTEX_INITIALIZER;
 
 void check_thread_support(int provided)
 {
@@ -122,18 +123,19 @@ void finalizuj()
     -   SEND REQUEST
     -   SEND RELEASE
 */
-// void sendPacket(packet_t *pkt, int destination, int tag)
-// {
-//     int freepkt=0;
-//     if (pkt==0) { pkt = malloc(sizeof(packet_t)); freepkt=1;}
-//     pkt->src = rank;
-//     pthread_mutex_lock( &zegarMut );
-//     zegar += 1;
-//     pkt->ts = zegar;
-//     pthread_mutex_unlock( &zegarMut );
-//     MPI_Send( pkt, 1, MPI_PAKIET_T, destination, tag, MPI_COMM_WORLD);
-//     if (freepkt) free(pkt);
-// }
+void sendPacket(packet_t *pkt, int destination, int tag)
+{
+    int freepkt=0;
+    if (pkt==0) { pkt = malloc(sizeof(packet_t)); freepkt=1;}
+    pkt->src = rank;
+    pthread_mutex_lock( &zegarMut );
+    zegar += 1;
+    pkt->ts = zegar;
+    pthread_mutex_unlock( &zegarMut );
+    pkt->cuchy=cuchy;
+    MPI_Send( pkt, 1, MPI_PAKIET_T, destination, tag, MPI_COMM_WORLD);
+    if (freepkt) free(pkt);
+}
 
 void changeState( state_t newState )
 {

@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <pthread.h>
+#include "queue.h"
 /* odkomentować, jeżeli się chce DEBUGI */
 //#define DEBUG 
 /* boolean */
@@ -29,6 +30,20 @@ extern state_t stan;
 extern int rank;
 extern int size;
 extern int zegar;
+extern int cuchy;
+extern int M;
+extern int N;
+extern int ubiegam_sie;
+extern int policzono_X;
+extern int wskaznik;
+extern int aktualny_X;
+extern int X;
+extern struct Queue *queue;
+extern int otrzymane_ACK; 
+extern int wyzerowanie_kolejki;
+extern int S;
+extern pthread_mutex_t pokojMut;
+
 
 /* stan globalny wykryty przez monitor */
 extern int globalState;
@@ -48,6 +63,7 @@ extern MPI_Datatype MPI_PAKIET_T;
 #define FINISH 1
 #define REQUEST 2
 #define RELEASE 3
+#define ACK 4
 
 /* macro debug - działa jak printf, kiedy zdefiniowano
    DEBUG, kiedy DEBUG niezdefiniowane działa jak instrukcja pusta 
@@ -93,4 +109,5 @@ extern MPI_Datatype MPI_PAKIET_T;
 */
 // void sendPacket(packet_t *pkt, int destination, int tag);
 void changeState( state_t );
+void sendPacket(packet_t *pkt, int destination, int tag);
 #endif
