@@ -69,8 +69,13 @@ struct part* find(struct Queue *queue, int i) {
     return p;
 }
 //usuwa element o danym indeksie z kolejki
-void delete_idx(struct Queue* queue, int idx){
-    if(isEmpty(queue) || queue->size<idx){
+void delete_idx(struct Queue* queue, int idx) {
+    if(isEmpty(queue)){
+        debug("Blad w logice, usuwanie z pustej kolejki.");
+        return;
+    }
+    if(queue->size<idx){
+        debug("Blad w logice, indeks spoza zakresu przy usuwaniu.");
         return;
     }
     struct part* current=queue->head;
@@ -85,4 +90,17 @@ void delete_idx(struct Queue* queue, int idx){
     }
     queue->size--;
     free(current);
+}
+// zwraca idx w kolejce na podstawie wartości
+int get_idx(struct Queue* queue, int rank)
+{
+    struct part* current=queue->head;
+    for(int idx=0; idx<queue->size; idx++){
+        if(current->src==rank){
+            return idx;
+        }
+        current=current->next;
+    }
+    debug("Nie znaleziono podanej wartości w kolejce.");
+    return -1;
 }
