@@ -1,45 +1,86 @@
 #include "queue.h"
+#include "main.h"
 
 // tworzy kolejkę
-struct Queue* createQueue() {
+struct Queue* create_queue() {
     struct Queue *queue = (struct Queue*)malloc(sizeof(struct Queue));
     queue->size = 0;
 }
 
 // sprawdza czy lista jest pusta
-int isEmpty(struct Queue* queue) {
-    if(queue->size == 0)
+int is_empty(struct Queue* queue) {
+    if(queue->size == 0) {
         return 1;
+    }
     return 0;
 }
 
-// dodaje element na koniec kolejki i zwraca pierwszy elment listy
-void push_back(struct Queue* queue, int src, int cuchy) {
-    struct part *last = back(queue);
+// tworzy nowy element kolejki
+struct part* create_part(int ts, int src, int cuchy) {
     struct part *new = (struct part*)malloc(sizeof(struct part));
-    new->next = NULL;
-    if(isEmpty(queue)) {
-        queue->head = new;
-        new->prev = NULL;
-    } else {
-        new->prev = last;
-        last->next = new;
-    }
+    new->ts = ts;
     new->src = src;
     new->cuchy = cuchy;
-    queue->size += 1;
+    new->next = NULL;
+    new->prev = NULL;
+    return new;
 }
 
-// zdejmuje element z przodu kolejki
-void pop_front(struct Queue *queue) {
-    if(isEmpty(queue))
+// dodaje element według etykiety czasowej lub jeżeli są równe to według id procesu
+void push_by_time(struct Queue *queue, int ts, int src, int cuchy) {
+    struct part *new = create_part(ts, src, cuchy);
+    struct part *p = queue->head;
+    // kolejka jest pusta
+    if(is_empty(queue)) {
+        queue->head = new;
+        queue->size++;
         return;
-    struct part *curr = queue->head;
-    queue->head = curr->next;
-    if(queue->head != NULL)
-        queue->head->prev = NULL;
-    queue->size -= 1;
-    free(curr);
+    }
+    // znajdź pierwsze żądanie z większą etykietą czasową lub jeżeli są równe to z większym id procesu
+    while(p->next && (p->ts < ts || (p->ts == ts && p->src < src))) {
+        p = p->next;
+    }
+    
+    // nie znaleziono żądania o większej etykiecie czasowej lub jeżeli są równe to z większym id procesu, więc wstawiamy żądanie na koniec kolejki
+    if(p->ts < ts || (p->ts == ts && p->src < src)) {
+        p->next = new;
+        new->prev = p;
+    }
+    // znaleziono żądanie o większej etykiecie czasowej 
+    else {
+        new->next = p;
+        // żądanie jest na początku kolejki
+        if(!p->prev) {
+            queue->head = new;
+        }
+        // żądanie nie jest na początku kolejki
+        else {
+            p->prev->next = new;
+        }
+        p->prev = new;
+    }
+    queue->size++;
+}
+
+// zdejmuje element według id procesu
+void pop_by_src(struct Queue *queue, int src) {
+    if(is_empty(queue)) {
+        debug("!!! Próba usunięcia żądania %d z pustej kolejki !!!", src);
+        return;
+    }
+    struct part* p = get_by_src(queue, src);
+    if(p) {
+        if(!p->prev) {
+            queue->head = p->next;
+        } else {
+            p->prev->next = p->next;
+        }
+        if(p->next) {
+            p->next->prev = p->prev;
+        }
+        queue->size--;
+        // free(p);
+    }
 }
 
 // zwraca pierwszy element w kolejce
@@ -47,60 +88,57 @@ struct part* front(struct Queue *queue) {
     return queue->head;
 }
 
-// zwraca ostatni element w kolejce
-struct part* back(struct Queue *queue) {
+// zwraca wybrany element w kolejce według pozycji
+struct part* get_by_id(struct Queue *queue, int i) {
     struct part *p = queue->head;
-    if(isEmpty(queue))
+    if(is_empty(queue)) {
+        debug("!!! Próba pobrania żądanie według pozycji %d na pustej kolejce !!!", i);
         return NULL;
-    while(p->next != NULL) {
+    }
+    while(p && --i >= 0) {
         p = p->next;
     }
     return p;
 }
 
-// zwraca wybrany element w kolejce zaczynając od 0
-struct part* find(struct Queue *queue, int i) {
+// zwraca wybrany element w kolejce według id procesu
+struct part* get_by_src(struct Queue *queue, int src) {
     struct part *p = queue->head;
-    if(isEmpty(queue))
+    if(is_empty(queue)) {
+        debug("!!! Próba pobrania żądanie według id procesu %d na pustej kolejce !!!", src);
         return NULL;
-    while(p->next != NULL && --i >= 0) {
+    }
+    while(p && p->src != src) {
         p = p->next;
     }
     return p;
 }
-//usuwa element o danym indeksie z kolejki
-void delete_idx(struct Queue* queue, int idx) {
-    if(isEmpty(queue)){
-        debug("Blad w logice, usuwanie z pustej kolejki.");
-        return;
+
+
+// zwraca indeks elemntu w kolejce według id procesu
+int find_by_src(struct Queue *queue, int src) {
+    struct part *p = queue->head;
+    int i = 0;
+    if(is_empty(queue)) {
+        debug("!!! Próba pobrania pozycji żądania według id procesu %d na pustej kolejce !!!", src);
+        return -1;
     }
-    if(queue->size<idx){
-        debug("Blad w logice, indeks spoza zakresu przy usuwaniu.");
-        return;
+    while(p->next && p->src != src) {
+        p = p->next;
+        i++;
     }
-    struct part* current=queue->head;
-    for(int i=1; i<=idx; i++){
-        current=current->next;
-    }
-    if(idx==0){
-        queue->head=current->next;
-    }
-    else{
-        current->prev->next=current->next;
-    }
-    queue->size--;
-    free(current);
+    return i;
 }
-// zwraca idx w kolejce na podstawie wartości
-int get_idx(struct Queue* queue, int rank)
-{
-    struct part* current=queue->head;
-    for(int idx=0; idx<queue->size; idx++){
-        if(current->src==rank){
-            return idx;
-        }
-        current=current->next;
+
+// wypisuje kolejkę
+void print_queue(struct Queue *queue) {
+    struct part *p = queue->head;
+    debug("-------KOLEJKA-------");
+    if(is_empty(queue)) {
+        return;
     }
-    debug("Nie znaleziono podanej wartości w kolejce.");
-    return -1;
+    while(p) {
+        debug(" id:%d | ts:%-5d | c:%d ", p->src, p->ts, p->cuchy);
+        p = p->next;
+    }
 }

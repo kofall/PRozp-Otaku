@@ -17,9 +17,10 @@
 #define FALSE 0
 
 /* używane w wątku głównym, determinuje jak często i na jak długo zmieniają się stany */
-#define STATE_CHANGE_PROB 50
-#define MAX_SEC_IN_LOBBY 10
-#define MAX_SEC_IN_ROOM 10
+#define STATE_CHANGE_PROB 100
+#define MAX_SEC_IN_LOBBY 1
+#define MAX_SEC_IN_ROOM 1
+#define MAX_CUCH_INCREASE 1
 
 
 #define ROOT 0
@@ -42,13 +43,15 @@ extern struct Queue *queue;
 extern int otrzymane_ACK; 
 extern int wyzerowanie_kolejki;
 extern int S;
+extern pthread_mutex_t zegarMut;
 extern pthread_mutex_t pokojMut;
+extern pthread_mutex_t wskaznikMut;
+extern pthread_mutex_t queueMut;
+extern pthread_mutex_t opuszczeniePokojuMut;
 
 
 /* stan globalny wykryty przez monitor */
 extern int globalState;
-/* ilu już odpowiedziało na GIVEMESTATE */
-extern int numberReceived;
 
 /* to może przeniesiemy do global... */
 #define FIELDNO 3

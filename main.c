@@ -22,9 +22,9 @@ int X; // maksymalny limit cuchów do wymiany przewodniczącego
 int aktualny_X = 0; // aktualnie naliczony limit cuchów
 int cuchy; // moja wartość cuchów
 int otrzymane_ACK = 0; // otrzymane zgody od innych procesów
-int ubiegam_sie = 0; // wartość boolean -> czy ubiegam się o dostęp do kolejki
-int wyzerowanie_kolejki = 0; // wartość boolean -> czy czekać na opróźnienie się kolejki
-int policzono_X = 0; // wartość boolean -> czy uaktualniłem już limit cuchów
+int ubiegam_sie = FALSE; // wartość boolean -> czy ubiegam się o dostęp do kolejki
+int wyzerowanie_kolejki = FALSE; // wartość boolean -> czy czekać na opróźnienie się kolejki
+int policzono_X = FALSE; // wartość boolean -> czy uaktualniłem już limit cuchów
 int wskaznik = -1; // pozycja, na której zakończone liczenie cuchów z kolejki
 struct Queue *queue; // kolejka żądań
 
@@ -37,6 +37,9 @@ pthread_t threadKom, threadMon;
 pthread_mutex_t stateMut = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t zegarMut = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t pokojMut = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t wskaznikMut = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t queueMut = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t opuszczeniePokojuMut = PTHREAD_MUTEX_INITIALIZER;
 
 void check_thread_support(int provided)
 {
@@ -98,8 +101,8 @@ void inicjuj(int argc, char **argv)
     N = size;
     sscanf(argv[2], "%d", &M);
     sscanf(argv[3], "%d", &X);
-    queue = createQueue();
-    cuchy = M / S;
+    queue = create_queue();
+    cuchy = 1;//M / S;
     debug("jestem");
 }
 
@@ -125,15 +128,23 @@ void finalizuj()
 */
 void sendPacket(packet_t *pkt, int destination, int tag)
 {
-    int freepkt=0;
-    if (pkt==0) { pkt = malloc(sizeof(packet_t)); freepkt=1;}
+    int freepkt = 0;
+    if (pkt == 0) {
+        pkt = malloc(sizeof(packet_t));
+        freepkt=1;
+    }
     pkt->src = rank;
-    pthread_mutex_lock( &zegarMut );
     zegar += 1;
     pkt->ts = zegar;
-    pthread_mutex_unlock( &zegarMut );
-    pkt->cuchy=cuchy;
+    pkt->cuchy = cuchy;
+    char *tag_str = tag == REQUEST ? "REQUEST" : tag == RELEASE ? "RELEASE" : "ACK";
     MPI_Send( pkt, 1, MPI_PAKIET_T, destination, tag, MPI_COMM_WORLD);
+    if(tag == RELEASE || tag == ACK) {
+        debug("Wysłano %s do %d z zegarem:%d", tag_str, destination, zegar);
+    }
+    else {
+        debug("Wysłano %s do %d z zegarem:%d i cuchami:%d", tag_str, destination, zegar, pkt->cuchy);
+    }
     if (freepkt) free(pkt);
 }
 
@@ -150,10 +161,9 @@ void changeState( state_t newState )
 
 int main(int argc, char **argv)
 {
-    /* Tworzenie wątków, inicjalizacja itp */
-
-    // tworzy wątek komunikacyjny w "watek_komunikacyjny.c"
+    /* Tworzenie wątków, inicjalizacja danych itp */
     inicjuj(argc, argv);
+    
     // w pliku "watek_glowny.c"
     mainLoop();
 

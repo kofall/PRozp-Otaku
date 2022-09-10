@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 struct part {
-    int src, cuchy;
+    int ts, src, cuchy;
     struct part *prev, *next;
 };
 
@@ -15,21 +15,22 @@ struct Queue {
 };
 
 // tworzy kolejkę
-struct Queue* createQueue();
+struct Queue* create_queue();
 // sprawdza czy lista jest pusta
-int isEmpty(struct Queue *queue);
-// dodaje element na koniec kolejki
-void push_back(struct Queue *queue, int src, int cuchy);
-// zdejmuje element z przodu kolejki
-void pop_front(struct Queue *queue);
+int is_empty(struct Queue *queue);
+// dodaje element według etykiety czasowej lub jeżeli są równe to według id procesu
+void push_by_time(struct Queue *queue, int ts, int src, int cuchy);
+// zdejmuje element według id procesu
+void pop_by_src(struct Queue *queue, int src);
 // zwraca pierwszy element w kolejce
 struct part* front(struct Queue *queue);
-// zwraca ostatni element w kolejce
-struct part* back(struct Queue *queue);
-// zwraca wybrany element w kolejce
-struct part* find(struct Queue *queue, int i);
-// usuwa pozycje o danym indeksie
-void delete_idx(struct Queue *queue, int idx);
-// zwraca idx w kolejce na podstawie wartości
-int get_idx(struct Queue* queue, int rank);
+// zwraca wybrany element w kolejce według pozycji
+struct part* get_by_id(struct Queue *queue, int i);
+// zwraca wybrany element w kolejce według id procesu
+struct part* get_by_src(struct Queue *queue, int src);
+// zwraca indeks elemntu w kolejce według id procesu
+int find_by_src(struct Queue *queue, int src);
+// wypisuje kolejkę
+void print_queue(struct Queue *queue);
+
 #endif
