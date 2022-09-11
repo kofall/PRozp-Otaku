@@ -99,7 +99,7 @@ void inicjuj(int argc, char **argv)
     sscanf(argv[2], "%d", &M);
     sscanf(argv[3], "%d", &X);
     queue = create_queue();
-    cuchy = rand()%(M / S) + 1;
+    cuchy = M / S;
 
     pthread_create( &threadKom, NULL, startKomWatek , 0);
     debug("jestem");
