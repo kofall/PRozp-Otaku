@@ -37,8 +37,6 @@ pthread_t threadKom, threadMon;
 pthread_mutex_t stateMut = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t zegarMut = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t pokojMut = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t wskaznikMut = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t queueMut = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t opuszczeniePokojuMut = PTHREAD_MUTEX_INITIALIZER;
 
 void check_thread_support(int provided)
@@ -95,14 +93,15 @@ void inicjuj(int argc, char **argv)
     MPI_Comm_size(MPI_COMM_WORLD, &size);
     srand(rank);
 
-    pthread_create( &threadKom, NULL, startKomWatek , 0);
     /* Inicjalizacja części zadaniowej */
     sscanf(argv[1], "%d", &S);
     N = size;
     sscanf(argv[2], "%d", &M);
     sscanf(argv[3], "%d", &X);
     queue = create_queue();
-    cuchy = 1;//M / S;
+    cuchy = rand()%(M / S) + 1;
+
+    pthread_create( &threadKom, NULL, startKomWatek , 0);
     debug("jestem");
 }
 
@@ -120,12 +119,6 @@ void finalizuj()
     MPI_Finalize();
 }
 
-
-/* opis patrz main.h */
-/* TODO:
-    -   SEND REQUEST
-    -   SEND RELEASE
-*/
 void sendPacket(packet_t *pkt, int destination, int tag)
 {
     int freepkt = 0;

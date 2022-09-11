@@ -2,12 +2,6 @@
 #include "watek_komunikacyjny.h"
 #include "queue.h"
 
-/* wątek komunikacyjny; zajmuje się odbiorem i reakcją na komunikaty */
-/* TODO:
-    -   RECEIVE REQUEST
-    -   RECEIVE RELEASE
-*/
-
 void updateX(int pos) {
     int my_idx = find_by_src(queue, rank);
     while(wskaznik < pos) {
@@ -105,9 +99,6 @@ void *startKomWatek(void *ptr)
         zegar = (zegar > pakiet.ts ? zegar : pakiet.ts) + 1;
         pthread_mutex_unlock( &zegarMut );
 
-        pthread_mutex_lock( &wskaznikMut );
-        pthread_mutex_lock( &queueMut );
-
         switch ( status.MPI_TAG ) {
 	        case FINISH: 
                 changeState(InFinish);
@@ -154,8 +145,5 @@ void *startKomWatek(void *ptr)
 	        default:
 	            break;
         }
-
-        pthread_mutex_unlock( &wskaznikMut );
-        pthread_mutex_unlock( &queueMut );
     }
 }

@@ -21,8 +21,8 @@ struct part* create_part(int ts, int src, int cuchy) {
     new->ts = ts;
     new->src = src;
     new->cuchy = cuchy;
-    new->next = NULL;
     new->prev = NULL;
+    new->next = NULL;
     return new;
 }
 
@@ -49,6 +49,7 @@ void push_by_time(struct Queue *queue, int ts, int src, int cuchy) {
     // znaleziono żądanie o większej etykiecie czasowej 
     else {
         new->next = p;
+        new->prev = p->prev;
         // żądanie jest na początku kolejki
         if(!p->prev) {
             queue->head = new;

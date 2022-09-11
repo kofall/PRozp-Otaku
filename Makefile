@@ -3,7 +3,7 @@ HEADERS=$(SOURCES:.c=.h)
 FLAGS=-DDEBUG -g
 
 S=2
-N=3
+N=5
 M=10
 X=20
 

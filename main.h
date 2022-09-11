@@ -17,7 +17,7 @@
 #define FALSE 0
 
 /* używane w wątku głównym, determinuje jak często i na jak długo zmieniają się stany */
-#define STATE_CHANGE_PROB 100
+#define STATE_CHANGE_PROB 50
 #define MAX_SEC_IN_LOBBY 1
 #define MAX_SEC_IN_ROOM 1
 #define MAX_CUCH_INCREASE 1
